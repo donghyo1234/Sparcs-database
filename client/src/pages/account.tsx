@@ -5,24 +5,34 @@ import {SAPIBase} from "../tools/api";
 import "./css/account.css";
 
 const AccountPage = () => {
-  const [ SAPIKEY, setSAPIKEY ] = React.useState<string>("");
+  const [ Id, setId ] = React.useState<string>("");
+  const [ Pw, setPw ] = React.useState<string>("");
   const [ NBalance, setNBalance ] = React.useState<number | "Not Authorized">("Not Authorized");
   const [ NTransaction, setNTransaction ] = React.useState<number | ''>(0);
 
-  const getAccountInformation = () => {
+  const getAccInfo = () => {
     const asyncFun = async() => {
       interface IAPIResponse { balance: number };
-      const { data } = await axios.post<IAPIResponse>(SAPIBase + '/account/getInfo', { credential: SAPIKEY });
+      const { data } = await axios.post<IAPIResponse>(SAPIBase + '/account/getInfo', { Id: Id, Pw: Pw });
       setNBalance(data.balance);
     }
-    asyncFun().catch((e) => window.alert(`AN ERROR OCCURED: ${e}`));
+    asyncFun().catch((e) => window.alert(`AN ERROR OCCUrrRED: ${e}`));
+  }
+
+  const regAcc = () => {
+    const asyncFun = async() => {
+      interface IAPIResponse { balance: number };
+      const { data } = await axios.post<IAPIResponse>(SAPIBase + '/account/register', { Id: Id, Pw: Pw, register: true });
+      setNBalance(data.balance);
+    }
+    asyncFun().catch((e) => window.alert(`AN ERROR OCCUReeED: ${e}`));
   }
 
   const performTransaction = ( amount: number | '' ) => {
     const asyncFun = async() => {
       if (amount === '') return;
       interface IAPIResponse { success: boolean, balance: number, msg: string };
-      const { data } = await axios.post<IAPIResponse>(SAPIBase + '/account/transaction', { credential: SAPIKEY, amount: amount });
+      const { data } = await axios.post<IAPIResponse>(SAPIBase + '/account/transaction', { Id: Id, Pw: Pw, register: true });
       setNTransaction(0);
       if (!data.success) {
         window.alert('Transaction Failed:' + data.msg);
@@ -32,7 +42,7 @@ const AccountPage = () => {
       setNTransaction(0);
       setNBalance(data.balance);
     }
-    asyncFun().catch((e) => window.alert(`AN ERROR OCCURED: ${e}`));
+    asyncFun().catch((e) => window.alert(`AN ERROR OCCeeURED: ${e}`));
   }
 
   return (
@@ -40,8 +50,10 @@ const AccountPage = () => {
       <Header/>
       <h2>Account</h2>
       <div className={"account-token-input"}>
-        Enter API Key: <input type={"text"} value={SAPIKEY} onChange={e => setSAPIKEY(e.target.value)}/>
-        <button onClick={e => getAccountInformation()}>GET</button>
+        Enter Id: <input type={"text"} value={Id} onChange={e => setId(e.target.value)}/><br/>
+        Enter Pw: <input type={"password"} value={Pw} onChange={e => setPw(e.target.value)}/><br/>
+        <button onClick={e => getAccInfo()}>Login</button>
+        <button onClick={e => regAcc()}>Register</button>
       </div>
       <div className={"account-bank"}>
         <h3>The National Bank of SPARCS API</h3>
